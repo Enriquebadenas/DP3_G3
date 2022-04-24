@@ -2,8 +2,8 @@
 
 Equipo:
 
-Enrique Badenas Cazorla
-Diego Cortés
-Laura Macías
-Alfonso Montserrat
-Jaime Torres
+- Enrique Badenas Cazorla
+- Diego Cortés
+- Laura Macías
+- Alfonso Montserrat
+- Jaime Torres
