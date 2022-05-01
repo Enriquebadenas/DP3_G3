@@ -17,6 +17,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RandomizedSearchCV
 get_ipython().run_line_magic('matplotlib', 'inline')
 import matplotlib.pyplot as plt
+import matplotlib
 
 # aux_functions
 def plot_with_err(x, data, **kwargs):
@@ -55,6 +56,8 @@ target_names
 dat.shape
 
 dat[0:5]
+
+# eliminanmos las varaibles no numéricas porque el modelo Knn no las admite
 dat.drop('customerid', axis=1, inplace=True)
 dat.drop('Unnamed: 0', axis=1, inplace=True)
 dat.columns
@@ -66,6 +69,7 @@ dat.drop('closeddate', axis=1, inplace=True)
 dat.drop('referredby', axis=1, inplace=True)
 dat.shape
 
+# La variable target la recodificamos a numérica para el modelo Knn
 dat['Good_bad_flag'] = np.where(dat['Good_bad_flag']=='Good', 1, 0)
 
 
@@ -89,8 +93,8 @@ pred[0:5]
 metric(target, pred)
 
 # Por ejemplo si quiero otra métrica:
-from sklearn.metrics import zero_one_loss as metric
-metric(target, pred)
+#from sklearn.metrics import zero_one_loss as metric
+#metric(target, pred)
 
 '''Validation '''
 # ### 1.1 Cross-Validation
@@ -303,4 +307,51 @@ acc_test = metric(y_test, pred_test);
 # Veamos los resultados finales:
 print('accuracy train = ' + str(acc_train))
 print('accuracy test = ' + str(acc_test))
+
+
+
+
+
+
+
+
+
+
+'''Feature importance          no sirve para knn'''
+# get importance
+importance = model.feature_importances_
+# summarize feature importance
+for i,v in enumerate(importance):
+	print('Feature: %0d, Score: %.5f' % (i,v))
+# plot feature importance
+plt.bar([x for x in range(len(importance))], importance)
+plt.show()
+
+
+
+
+'''Feature importance          para el conjunto CV con Lasso'''
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import RidgeCV, LassoCV, Ridge, Lasso
+reg = LassoCV()
+
+# La variable target la recodificamos a numérica para el modelo Knn
+y_train = np.where(y_train =='Good', 1, 0)
+
+reg.fit(X_train, y_train)
+print("Best alpha using built-in LassoCV: %f" % reg.alpha_)
+print("Best score using built-in LassoCV: %f" %reg.score(X_train, y_train))
+
+coef = pd.Series(reg.coef_, index = X_train_cross.columns)
+
+print("Lasso picked " + str(sum(coef != 0)) + " variables and eliminated the other " +  str(sum(coef == 0)) + " variables")
+
+imp_coef = coef.sort_values()
+matplotlib.rcParams['figure.figsize'] = (8.0, 10.0)
+imp_coef.plot(kind = "barh")
+plt.title("Feature importance using Lasso Model")
+plt.show()
+
+
+
 
